@@ -1,0 +1,26 @@
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx-cloud",
+      "options": {
+        "cacheableOperations": [
+          "start:prod",
+          "test:debug",
+          "test:e2e",
+          "build",
+          "lint",
+          "test"
+        ],
+        "accessToken": "ZjNjOTJiYTUtZWU5Yy00M2JjLWJiMDAtNDZmYjViY2JjYWVifHJlYWQtd3JpdGU="
+      }
+    }
+  },
+  "affected": {
+    "defaultBase": "master"
+  },
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeSourceFiles": true
+    }
+  }
+}
