@@ -1,6 +1,6 @@
 {
   "name": "random-generator",
-  "root": ".",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "src",
   "projectType": "application",
   "targets": {
@@ -35,18 +35,15 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/random-generator"],
       "options": {
-        "passWithNoTests": true,
         "jestConfig": "jest.config.ts"
       }
     },
     "e2e": {
       "executor": "@nx/jest:jest",
       "options": {
-        "passWithNoTests": true,
         "jestConfig": "jest.e2e-config.ts"
       }
     }
   },
-  "tags": [],
-  "$schema": "node_modules/nx/schemas/project-schema.json"
+  "tags": []
 }
