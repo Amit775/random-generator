@@ -39,4 +39,9 @@ export class AppController {
   endAll(): Observable<void> {
     return this.service.endAll();
   }
+
+  @Get('atlas')
+  getAtlasMovies(): Observable<{ movies: string }> {
+    return this.service.getAtlasMovies();
+  }
 }

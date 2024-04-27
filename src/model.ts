@@ -7,4 +7,6 @@ export type Movie = {
   name: string;
   date: string;
   time: string;
+  cost: string;
+  stock: string;
 };

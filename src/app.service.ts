@@ -1,7 +1,11 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import * as cheerio from 'cheerio';
 import { raw } from 'guid';
-import { Observable, of, switchMap } from 'rxjs';
+import { trim } from 'lodash';
+import { Observable, from, map, of, switchMap } from 'rxjs';
 import { Repository } from './app.repository';
+import { Movie } from './model';
 
 function createShuffledArray(min: number, max: number): number[] {
   return Array.from({ length: max - min + 1 })
@@ -11,7 +15,7 @@ function createShuffledArray(min: number, max: number): number[] {
 
 @Injectable()
 export class AppService {
-  constructor(private repository: Repository) {}
+  constructor(private repository: Repository, private http: HttpService) {}
 
   startSession(min: number, max: number): Observable<string> {
     if (min > max) throw 'min is greater than max';
@@ -54,5 +58,58 @@ export class AppService {
 
   endAll(): Observable<void> {
     return this.repository.deleteAll();
+  }
+
+  getAtlasMovies(): Observable<{ movies: string }> {
+    // URL of the website
+    const url = 'http://atlashotels-experience.co.il/cinema/';
+
+    // Send a GET request to the URL with headers
+    return from(
+      this.http.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }).pipe(
+        map((response) => {
+          const htmlContent = response.data;
+          const $ = cheerio.load(htmlContent);
+
+          // Find all elements with class 'elementor-element-populated'
+          const potentialParents = $('.elementor-element-populated');
+
+          // Filter the potential parents to find those with a child with class 'film-image'
+          const selectedParents = potentialParents.filter(
+            (index, element) => $(element).find('.film-image').length > 0,
+          );
+
+          const text = trim(selectedParents.eq(0).text());
+          const cleanText: string[] = text
+            .split('custom CSS */')
+            .reverse()[0]
+            .replace('חדשים מהקולנוע', '')
+            .replace(/^\n|\n$/, '')
+            .replace(/\s+\n*\s+/g, '\n')
+            .trim()
+            .split('לפרטים ורכישה');
+
+          return cleanText
+            .filter((m) => m.length > 0)
+            .map((movie) => {
+              const [stock, name, dateTime, _day, cost] = movie
+                .replace(/^\n|\n$/, '')
+                .split('\n');
+              const [date, time] = dateTime.split(' || ');
+
+              return { date, name, time, cost, stock } as Movie;
+            });
+        }),
+        map((movies) =>
+          movies
+            .map(
+              (movie) =>
+                `${movie.name} - ${movie.date} - ${movie.time} - ${movie.stock} - ${movie.cost}`,
+            )
+            .join('\n'),
+        ),
+        map((movies) => ({ movies })),
+      ),
+    );
   }
 }

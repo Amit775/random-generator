@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { Collection, MongoClient } from 'mongodb';
 import { AppController } from './app.controller';
@@ -6,7 +7,7 @@ import { AppService } from './app.service';
 import { Session } from './model';
 
 @Module({
-  imports: [],
+  imports: [HttpModule],
   controllers: [AppController],
   providers: [
     AppService,
