@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { Repository } from './app.repository';
 import { AppService } from './app.service';
 import { Session } from './model';
+import { GreetingService } from './greeting.service';
 
 @Module({
   imports: [HttpModule],
@@ -28,6 +29,7 @@ import { Session } from './model';
           .catch((error) => console.error(error));
       },
     },
+    GreetingService,
   ],
 })
 export class AppModule {}

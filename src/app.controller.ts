@@ -44,4 +44,13 @@ export class AppController {
   getAtlasMovies(): Observable<{ movies: string }> {
     return this.service.getAtlasMovies();
   }
+
+  @Get('atlas/:greeting')
+  setGreeting(
+    @Param('greeting') greeting: string,
+  ): Observable<{ movies: string }> {
+    this.service.setGreeting(greeting);
+
+    return this.service.getAtlasMovies();
+  }
 }

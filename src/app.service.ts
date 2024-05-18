@@ -6,6 +6,7 @@ import { trim } from 'lodash';
 import { Observable, from, map, of, switchMap } from 'rxjs';
 import { Repository } from './app.repository';
 import { Movie } from './model';
+import { GreetingService } from './greeting.service';
 
 function createShuffledArray(min: number, max: number): number[] {
   return Array.from({ length: max - min + 1 })
@@ -15,7 +16,11 @@ function createShuffledArray(min: number, max: number): number[] {
 
 @Injectable()
 export class AppService {
-  constructor(private repository: Repository, private http: HttpService) {}
+  constructor(
+    private repository: Repository,
+    private http: HttpService,
+    private greeting: GreetingService,
+  ) {}
 
   startSession(min: number, max: number): Observable<string> {
     if (min > max) throw 'min is greater than max';
@@ -60,6 +65,10 @@ export class AppService {
     return this.repository.deleteAll();
   }
 
+  setGreeting(greeting: string): void {
+    this.greeting.setGreeting(greeting);
+  }
+
   getAtlasMovies(): Observable<{ movies: string }> {
     // URL of the website
     const url = 'http://atlashotels-experience.co.il/cinema/';
@@ -100,14 +109,17 @@ export class AppService {
               return { date, name, time, cost, stock } as Movie;
             });
         }),
-        map((movies) =>
-          movies
-            .map(
-              (movie) =>
-                `${movie.name} - ${movie.date} - ${movie.time} - ${movie.stock} - ${movie.cost}`,
-            )
-            .join('\n'),
-        ),
+        map((movies) => {
+          const result = movies.map(
+            (movie) =>
+              `${movie.name} - ${movie.date} - ${movie.time} - ${movie.stock} - ${movie.cost}`,
+          );
+
+          const greeting = this.greeting.getGreeting();
+          result.unshift(greeting);
+
+          return result.filter(Boolean).join('\n');
+        }),
         map((movies) => ({ movies })),
       ),
     );
