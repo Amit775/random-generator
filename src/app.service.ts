@@ -10,7 +10,7 @@ import { GreetingService } from './greeting.service';
 
 function createShuffledArray(min: number, max: number): number[] {
   return Array.from({ length: max - min + 1 })
-    .map((_, i) => i + 1)
+    .map((_, i) => Number(i + min))
     .sort(() => Math.random() - 0.5);
 }
 
@@ -63,6 +63,34 @@ export class AppService {
 
   endAll(): Observable<void> {
     return this.repository.deleteAll();
+  }
+
+  getHarryPotterMovies(): Observable<string> {
+    const url =
+      'https://www.ipo.co.il/program/harry_potter_and_the_prisoner_of_azkaban/';
+
+    return from(
+      this.http.get(url).pipe(
+        map((response) => {
+          const htmlContent = response.data;
+          const $ = cheerio.load(htmlContent);
+
+          const quotes = $('.time_zone [id^="event"]');
+
+          return quotes.get().map((quote) => {
+            const date = $(quote).closest('.event_date_str').text();
+            const time = $(quote).closest('.event_time').text();
+
+            return {
+              name: 'הארי פוטר',
+              date,
+              time,
+            } as Movie;
+          });
+        }),
+        map((movies) => movies.map((movie) => `${movie.name}`).join('\n')),
+      ),
+    );
   }
 
   setGreeting(greeting: string): void {

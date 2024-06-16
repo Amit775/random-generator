@@ -1,7 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { AppService } from './app.service';
 import { Observable } from 'rxjs';
-import { Movie } from './model';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
@@ -12,7 +11,7 @@ export class AppController {
     @Query('min') min: number,
     @Query('max') max: number,
   ): Observable<string> {
-    return this.service.startSession(min, max);
+    return this.service.startSession(+min, +max);
   }
 
   @Get('next/:sessionId')
@@ -43,6 +42,11 @@ export class AppController {
   @Get('atlas')
   getAtlasMovies(): Observable<{ movies: string }> {
     return this.service.getAtlasMovies();
+  }
+
+  @Get('movies/harry-potter')
+  getHarryPotterMovies(): Observable<string> {
+    return this.service.getHarryPotterMovies();
   }
 
   @Get('atlas/:greeting')
